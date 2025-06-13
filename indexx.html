@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💖KONVERSI BILANGAN💖 All-in-One</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mini.min.js"></script>
+  <style>
+    :root {
+      --bg: #fff0f6;
+      --card: #ffffff;
+      --text: #880e4f;
+      --primary: #ec407a;
+      --shadow: rgba(236, 64, 122, 0.3);
+    }
+    [data-theme="dark"] {
+      --bg: #2a0d1f;
+      --card: #3b1e2d;
+      --text: #fce4ec;
+      --primary: #f06292;
+      --shadow: rgba(252, 228, 236, 0.2);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    .container {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 8px 20px var(--shadow);
+    }
+    h1 {
+      text-align: center;
+      color: var(--primary);
+    }
+    label, select, input, button {
+      display: block;
+      width: 100%;
+      margin-top: 1rem;
+      font-size: 1rem;
+    }
+    select, input {
+      padding: 0.6rem;
+      border-radius: 10px;
+      border: none;
+      background: #fce4ec;
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .result, .steps {
+      background: #ffffff10;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .steps p { display: none; }
+    .download-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .theme-toggle {
+      float: right;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <div class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️</div>
+    <h1>  💖KONVERSI BILANGAN💖</h1>
+    <label for="mode">Pilih Mode:</label>
+    <select id="mode"></select>
+    <label for="input">Masukkan Bilangan:</label>
+    <input type="text" id="input" placeholder="Contoh: -42 atau 1011" />
+    <button onclick="convert()">🔄 Konversi</button>
+    <div class="result" id="result"></div>
+    <div class="steps" id="steps"></div>
+    <div class="download-buttons">
+      <button onclick="downloadTxt()">⬇️ Unduh TXT</button>
+      <button onclick="downloadPDF()">⬇️ Unduh PDF</button>
+      <button onclick="downloadExcel()">⬇️ Unduh Excel</button>
+      <button onclick="copyResult()">📋 Salin Hasil</button>
+    </div>
+  </div>
+
+  <script>
+    const modeSelect = document.getElementById('mode');
+    const allModes = [
+      ['dec-bin', 'Desimal ➜ Biner'], ['bin-dec', 'Biner ➜ Desimal'],
+      ['dec-oct', 'Desimal ➜ Oktal'], ['oct-dec', 'Oktal ➜ Desimal'],
+      ['dec-hex', 'Desimal ➜ Heksadesimal'], ['hex-dec', 'Heksadesimal ➜ Desimal'],
+      ['bin-oct', 'Biner ➜ Oktal'], ['bin-hex', 'Biner ➜ Heksadesimal'],
+      ['oct-bin', 'Oktal ➜ Biner'], ['hex-bin', 'Heksadesimal ➜ Biner'],
+      ['dec-rom', 'Desimal ➜ Romawi']
+    ];
+    allModes.forEach(([val, label]) => {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = label;
+      modeSelect.appendChild(opt);
+    });
+
+    function toggleTheme() {
+      const theme = document.body.getAttribute('data-theme');
+      document.body.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
+    }
+
+    const stepsDiv = document.getElementById('steps');
+    const resultDiv = document.getElementById('result');
+    let lastOutput = '';
+
+    function animateSteps(steps) {
+      stepsDiv.innerHTML = '';
+      steps.forEach((step, i) => {
+        const p = document.createElement('p');
+        p.textContent = step;
+        stepsDiv.appendChild(p);
+        setTimeout(() => p.style.display = 'block', i * 300);
+      });
+    }
+
+    function decToRoman(num, steps) {
+      const map = [
+        [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
+        [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+        [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
+      ];
+      let roman = '';
+      for (let [value, symbol] of map) {
+        while (num >= value) {
+          roman += symbol;
+          steps.push(`${num} - ${value} = ${num - value} ➜ ${symbol}`);
+          num -= value;
+        }
+      }
+      return roman;
+    }
+
+    function convert() {
+      const mode = modeSelect.value;
+      let input = document.getElementById('input').value.trim().replace('-', '');
+      stepsDiv.innerHTML = '';
+      resultDiv.innerHTML = '';
+      let result = '', steps = [];
+
+      try {
+        switch (mode) {
+          case 'dec-bin': {
+            let n = parseInt(input);
+            result = n.toString(2);
+            while (n > 0) {
+              steps.push(`${n} ÷ 2 = ${Math.floor(n / 2)}, sisa ${n % 2}`);
+              n = Math.floor(n / 2);
+            }
+            steps.reverse();
+            break;
+          }
+          case 'bin-dec': {
+            let total = 0;
+            input.split('').reverse().forEach((digit, i) => {
+              let val = parseInt(digit) * Math.pow(2, i);
+              steps.push(`${digit} × 2^${i} = ${val}`);
+              total += val;
+            });
+            result = total;
+            break;
+          }
+          case 'dec-oct': result = parseInt(input).toString(8); break;
+          case 'oct-dec': result = parseInt(input, 8).toString(10); break;
+          case 'dec-hex': result = parseInt(input).toString(16).toUpperCase(); break;
+          case 'hex-dec': result = parseInt(input, 16).toString(10); break;
+          case 'bin-oct': result = parseInt(input, 2).toString(8); break;
+          case 'bin-hex': result = parseInt(input, 2).toString(16).toUpperCase(); break;
+          case 'oct-bin': result = parseInt(input, 8).toString(2); break;
+          case 'hex-bin': result = parseInt(input, 16).toString(2); break;
+          case 'dec-rom': result = decToRoman(parseInt(input), steps); break;
+        }
+
+        resultDiv.innerHTML = `<strong>Hasil:</strong> ${result}`;
+        lastOutput = `Input: ${input}\nMode: ${mode}\nHasil: ${result}\nLangkah:\n${steps.join('\n')}`;
+        animateSteps(steps);
+      } catch (e) {
+        resultDiv.innerHTML = '❌ Input tidak valid';
+      }
+    }
+
+    function downloadTxt() {
+      const blob = new Blob([lastOutput], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'hasil-konversi.txt';
+      a.click();
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const lines = lastOutput.split('\n');
+      lines.forEach((line, i) => doc.text(line, 10, 10 + i * 8));
+      doc.save('hasil-konversi.pdf');
+    }
+
+    function downloadExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws_data = lastOutput.split('\n').map(line => [line]);
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, 'Konversi');
+      XLSX.writeFile(wb, 'hasil-konversi.xlsx');
+    }
+
+    function copyResult() {
+      navigator.clipboard.writeText(lastOutput).then(() => {
+        alert("✅ Hasil disalin ke clipboard!");
+      });
+    }
+  </script>
+</body>
+</html>
