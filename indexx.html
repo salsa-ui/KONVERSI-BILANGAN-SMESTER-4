@@ -6,7 +6,8 @@
   <title>💖KONVERSI BILANGAN💖 All-in-One</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mini.min.js"></script>
+  <!-- ✅ Ganti SheetJS ke versi full agar Excel bisa digunakan -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
       --bg: #fff0f6;
@@ -89,7 +90,7 @@
 <body data-theme="light">
   <div class="container">
     <div class="theme-toggle" onclick="toggleTheme()">🌙 / ☀️</div>
-    <h1>  💖KONVERSI BILANGAN💖</h1>
+    <h1>💖KONVERSI BILANGAN💖</h1>
     <label for="mode">Pilih Mode:</label>
     <select id="mode"></select>
     <label for="input">Masukkan Bilangan:</label>
