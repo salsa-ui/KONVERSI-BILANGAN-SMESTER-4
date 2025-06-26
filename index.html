@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator Aritmatika & Konversi Bilangan</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 30px;
+            background: linear-gradient(to bottom, #d6eaf8, #aed6f1);
+            color: #2c3e50;
+        }
+
+        h2,
+        h3 {
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input,
+        select,
+        button {
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 5px;
+            margin-right: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2980b9;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+
+        .output {
+            background: #ecf0f1;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        pre {
+            background: #fdfefe;
+            padding: 15px;
+            border-left: 5px solid #5dade2;
+            white-space: pre-wrap;
+            border-radius: 5px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background-color: #5dade2;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #1a5276;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🧮 Kalkulator Aritmatika & Konversi Bilangan</h2>
+
+    <h3>✳️ Aritmatika Antar Basis</h3>
+    <div class="form-group">
+        <label><strong>Bilangan A:</strong></label><br>
+        <input id="bilA" placeholder="Contoh: 1010 / 2F / 25">
+        <select id="basisA">
+            <option value="dec">Desimal</option>
+            <option value="bin">Biner</option>
+            <option value="oct">Oktal</option>
+            <option value="hex">Hexa</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label><strong>Operasi:</strong></label><br>
+        <select id="op">
+            <option value="add">+</option>
+            <option value="sub">−</option>
+            <option value="mul">×</option>
+            <option value="div">÷</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label><strong>Bilangan B:</strong></label><br>
+        <input id="bilB" placeholder="Contoh: 1011 / 1A / 13">
+        <select id="basisB">
+            <option value="dec">Desimal</option>
+            <option value="bin">Biner</option>
+            <option value="oct">Oktal</option>
+            <option value="hex">Hexa</option>
+        </select>
+    </div>
+
+    <button onclick="hitung()">💡 Hitung</button>
+    <div class="output" id="hasil"></div>
+    <div class="output" id="langkah"></div>
+
+    <hr style="margin: 40px 0;">
+
+    <h3>🔁 Konversi Antar Basis</h3>
+    <div class="form-group">
+        <label><strong>Masukkan Bilangan:</strong></label><br>
+        <input id="konvInput" placeholder="Contoh: 1010 / 1F / 25">
+        <select id="asalBasis">
+            <option value="dec">Desimal</option>
+            <option value="bin">Biner</option>
+            <option value="oct">Oktal</option>
+            <option value="hex">Hexa</option>
+        </select>
+        ➡
+        <select id="tujuanBasis">
+            <option value="dec">Desimal</option>
+            <option value="bin">Biner</option>
+            <option value="oct">Oktal</option>
+            <option value="hex">Hexa</option>
+        </select>
+        <button onclick="konversi()">🔄 Konversi</button>
+    </div>
+    <div class="output" id="hasilKonversi"></div>
+    <div class="output" id="langkahKonversi"></div>
+
+    <script>
+        function konversiKeDesimal(str, basis) {
+            if (basis === 'dec') return parseInt(str);
+            if (basis === 'bin') return parseInt(str, 2);
+            if (basis === 'oct') return parseInt(str, 8);
+            if (basis === 'hex') return parseInt(str, 16);
+        }
+
+        function tampilkanHasil(nilai) {
+            const abs = Math.abs(nilai);
+            return `
+        <div class="section-title">🔢 Hasil dalam Berbagai Basis:</div>
+        <b>Desimal:</b> ${nilai}<br>
+        <b>Biner:</b> ${abs.toString(2)}<br>
+        <b>Oktal:</b> ${abs.toString(8)}<br>
+        <b>Hexa:</b> ${abs.toString(16).toUpperCase()}<br>
+      `;
+        }
+
+        function buatTabelPembagian(nilai, basis) {
+            let s = `<br><div class="section-title">🔄 Konversi Desimal ke ${basis}:</div><table><tr><th>Langkah</th><th>Sisa</th><th>Hasil Bagi</th></tr>`;
+            let n = Math.abs(nilai);
+            let b = basis === "Biner" ? 2 : basis === "Oktal" ? 8 : 16;
+            while (n > 0) {
+                s += `<tr><td>${n} ÷ ${b}</td><td>${n % b}</td><td>${Math.floor(n / b)}</td></tr>`;
+                n = Math.floor(n / b);
+            }
+            s += `</table>`;
+            return s;
+        }
+
+        function hitung() {
+            const aStr = document.getElementById("bilA").value.trim();
+            const bStr = document.getElementById("bilB").value.trim();
+            const basisA = document.getElementById("basisA").value;
+            const basisB = document.getElementById("basisB").value;
+            const op = document.getElementById("op").value;
+
+            try {
+                const aDes = konversiKeDesimal(aStr, basisA);
+                const bDes = konversiKeDesimal(bStr, basisB);
+
+                let hasil = 0, simbol = "";
+                if (op === "add") { hasil = aDes + bDes; simbol = "+"; }
+                else if (op === "sub") { hasil = aDes - bDes; simbol = "−"; }
+                else if (op === "mul") { hasil = aDes * bDes; simbol = "×"; }
+                else if (op === "div") {
+                    if (bDes === 0) {
+                        document.getElementById("hasil").innerHTML = "❌ Tidak bisa dibagi nol!";
+                        document.getElementById("langkah").innerHTML = "";
+                        return;
+                    }
+                    hasil = Math.floor(aDes / bDes);
+                    simbol = "÷";
+                }
+
+                document.getElementById("hasil").innerHTML = `
+          <h3>✅ Hasil Perhitungan:</h3>
+          ${tampilkanHasil(hasil)}
+        `;
+
+                let langkah = `<h3>📘 Langkah Detail:</h3><pre>`;
+                langkah += `1. Konversi Bilangan A ke Desimal:\n   - Input: ${aStr} (${basisA.toUpperCase()}) → ${aDes}\n`;
+                langkah += `2. Konversi Bilangan B ke Desimal:\n   - Input: ${bStr} (${basisB.toUpperCase()}) → ${bDes}\n`;
+                langkah += `3. Operasi Aritmatika:\n   - ${aDes} ${simbol} ${bDes} = ${hasil}\n`;
+                langkah += `4. Konversi Hasil ke Basis Lain:\n   - Biner: ${Math.abs(hasil).toString(2)}\n   - Oktal: ${Math.abs(hasil).toString(8)}\n   - Hexa: ${Math.abs(hasil).toString(16).toUpperCase()}</pre>`;
+
+                langkah += buatTabelPembagian(hasil, "Biner");
+                langkah += buatTabelPembagian(hasil, "Oktal");
+                langkah += buatTabelPembagian(hasil, "Hexa");
+
+                document.getElementById("langkah").innerHTML = langkah;
+            } catch (e) {
+                document.getElementById("hasil").innerHTML = "❌ Input tidak valid!";
+                document.getElementById("langkah").innerHTML = "";
+            }
+        }
+
+        function konversi() {
+            const input = document.getElementById("konvInput").value.trim().toUpperCase();
+            const from = document.getElementById("asalBasis").value;
+            const to = document.getElementById("tujuanBasis").value;
+            const label = { dec: "Desimal", bin: "Biner", oct: "Oktal", hex: "Hexa" };
+
+            try {
+                const des = konversiKeDesimal(input, from);
+                let hasil = "";
+                if (to === "dec") hasil = des;
+                else if (to === "bin") hasil = des.toString(2);
+                else if (to === "oct") hasil = des.toString(8);
+                else if (to === "hex") hasil = des.toString(16).toUpperCase();
+
+                document.getElementById("hasilKonversi").innerHTML = `
+          <h3>✅ Hasil Konversi:</h3>
+          <b>${input} (${label[from]}) → ${hasil} (${label[to]})</b>
+          <br><br>${tampilkanHasil(des)}
+        `;
+
+                let langkah = `<h3>📘 Langkah Konversi Detail:</h3><pre>`;
+                langkah += `1. Konversi dari ${label[from]} ke Desimal:\n`;
+
+                if (from === 'dec') {
+                    langkah += `   - ${input} sudah dalam bentuk Desimal: ${des}\n`;
+                } else {
+                    let nilai = input.split('').reverse();
+                    let rumus = nilai.map((char, i) => {
+                        const val = parseInt(char, from === 'hex' ? 16 : from === 'oct' ? 8 : 2);
+                        return `${char}×${(from === 'hex') ? 16 : from === 'oct' ? 8 : 2}^${i}`;
+                    }).join(' + ');
+                    langkah += `   - Rumus: ${rumus}\n   - Hasil: ${des}\n`;
+                }
+
+                langkah += `\n2. Konversi Desimal ke ${label[to]}:\n   - ${des} → ${hasil}</pre>`;
+
+                if (to !== "dec") {
+                    langkah += buatTabelPembagian(des, label[to]);
+                }
+
+                document.getElementById("langkahKonversi").innerHTML = langkah;
+            } catch (e) {
+                document.getElementById("hasilKonversi").innerHTML = "❌ Input tidak valid!";
+                document.getElementById("langkahKonversi").innerHTML = "";
+            }
+        }
+    </script>
+</body>
+
+</html>
